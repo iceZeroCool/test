@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.mapper.StudentMapper">
+
+	<!-- ①：取别名的方式 <select id="SelectAllStudent" resultType="student"> select 
+		id,username as user, password as pwd, phone, address, email, c_id as cid 
+		from student </select> -->
+
+	<!-- ②：使用结果集映射 -->
+	<select id="SelectAllStudent" resultMap="AllStudent">
+		select * from student_u
+	</select>
+
+	<resultMap type="student_u" id="AllStudent">
+		<result column="student" property="stu" />
+		<result column="password" property="pwd" />
+		<result column="class_id" property="c_id" />
+	</resultMap>
+
+
+	<!--多对一关联查询 -->
+	<!--  
+		① 嵌套结果
+		<select id="SelectOneAll" parameterType="int"
+			resultMap="studentOneAll">
+			select * from student,gender where student.c_id=gender.id and
+			student.id=#{id}
+		</select>
+		<resultMap type="student" id="studentOneAll">
+			<result column="username" property="user" />
+			<result column="password" property="pwd" />
+			<result column="c_id" property="cid" />
+			<association property="gender" javaType="gender">
+				<id column="id" property="id" />
+				<result column="c_name" property="name" />
+				<result column="c_teacher" property="teacher" />
+			</association>
+		</resultMap>
+	-->
+	<!-- ② 嵌套查询 -->
+	<select id="SelectOneAll" resultMap="studentOneAll"
+		parameterType="int">
+		select * from student_u where id =#{id}
+	</select>
+	<resultMap type="student_u" id="studentOneAll">
+		<result column="student" property="stu" />
+		<result column="password" property="pwd" />
+		<result column="class_id" property="cid" />
+		<association property="class_stu" column="c_id"
+			select="selectOneClass" />
+	</resultMap>
+	<select id="selectOneClass" resultMap="ClassAll">
+		select * from class_stu
+		where id=#{c_id}
+	</select>
+	<resultMap type="class_stu" id="ClassAll">
+		<id column="id" property="id" />
+		<result column="c_name" property="name" />
+		<result column="c_teacher" property="teacher" />
+	</resultMap>
+
+
+	<!--one to more-->
+	<select id="SelectClassAll" resultMap="ClassAllStudent">
+		select * from student_u where class_id = #{c_id}
+	</select>
+	<resultMap type="student_u" id="ClassAllStudent">
+		<result column="student" property="stu" />
+		<result column="password" property="pwd" />
+		<result column="class_id" property="c_id" />
+	</resultMap>
+
+    <select id="SelectNotNullNameAuto" resultType="student_u">
+        select * from student_u where
+        <where>
+            <if test = "name != null">
+                id = #{id}
+            </if>
+        </where>
+    </select>
+
+</mapper>
