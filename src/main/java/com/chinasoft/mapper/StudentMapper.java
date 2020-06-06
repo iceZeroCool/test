@@ -13,5 +13,5 @@ public interface StudentMapper {
 
 	List<Student_u> SelectClassAll(int c_id);
 
-	Student_u SelectNotNullNameAuto(int id);
+	//Student_u SelectNotNullNameAuto(int id);
 }
